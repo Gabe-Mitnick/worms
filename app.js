@@ -19,34 +19,34 @@ var sizePrefs = {
 	// typical: 12,
 	startAtRandom: true,
 	// changeRate: 3,
-	moderation: .06,
-	startAtZero: true
-}
+	moderation: 0.06,
+	startAtZero: true,
+};
 var speedPrefs = {
 	// typical: 4,
 	startAtRandom: true,
 	// changeRate: .5,
-	moderation: .1,
-	startAtZero: true
-}
+	moderation: 0.1,
+	startAtZero: true,
+};
 var dirPrefs = {
 	min: 0,
 	max: 2 * Math.PI,
 	startAtRandom: true,
 	// radians / frame
 	// changeRate: .3,
-	restrict: false
-}
+	restrict: false,
+};
 
 var Shapes = Object.freeze({
 	freeCircles: 0,
 	connectedCircles: 1,
 	square: 2,
-	line: 3
+	line: 3,
 });
 var wormShape = Shapes.connectedCircles;
 // butt, round, or square line cap
-var lineType = 'butt';
+var lineType = "butt";
 
 var numColors = 6;
 // fake enum for color modes
@@ -81,60 +81,56 @@ function genColors() {
 	colorList = new Array(numColors);
 	switch (colorMode) {
 		// curlies below to keep variables to itself
-		case Modes.hexagon:
-			{
-				// partly random color palette
-				// contains array of r values, array of g values, and array of b values
-				let colorNums = new Array(3);
-				// repeat for r's, g's, and b's
-				for (let i = 0; i < 3; i++) {
-					colorNums[i] = new Array(6);
-					// primary colors
-					for (let j = 0; j < 3; j++) {
-						colorNums[i][j] = rand255();
-					}
-					// secondary colors
-					for (let j = 0; j < 3; j++) {
-						colorNums[i][3 + j] = (colorNums[i][j] + colorNums[i][(j + 1) % 3]) / 2;
-					}
+		case Modes.hexagon: {
+			// partly random color palette
+			// contains array of r values, array of g values, and array of b values
+			let colorNums = new Array(3);
+			// repeat for r's, g's, and b's
+			for (let i = 0; i < 3; i++) {
+				colorNums[i] = new Array(6);
+				// primary colors
+				for (let j = 0; j < 3; j++) {
+					colorNums[i][j] = rand255();
 				}
-				colorList = new Array(6);
-				// repeat for each color
-				for (let i = 0; i < 6; i++) {
-					colorList[i] =
-						`rgb(${colorNums[0][i]}, ${colorNums[1][i]}, ${colorNums[2][i]})`;
-				}
-				break;
-			}
-		case Modes.rainbow:
-			{
-				let increment = 360 / numColors;
-				let h = rand(0, 360);
-				let temp = rand(0, 8);
-				let s = 100 - (temp * temp);
-				let l = rand(50, 80);
-				for (let i = 0; i < colorList.length; i++) {
-					colorList[i] = `hsl(${h}, ${s}%, ${l}%)`;
-					h = (h + increment) % 360;
-				}
-				break;
-			}
-		case Modes.grayscale:
-			{
-				let increment = 255 / (numColors);
-				let val = rand(0, 255)
-				for (let i = 0; i < colorList.length; i++) {
-					colorList[i] = `rgb(${val}, ${val}, ${val})`;
-					val = (val + increment) % 255;
-				}
-				break;
-			}
-		default:
-			{ // random
-				for (let i = 0; i < colorList.length; i++) {
-					colorList[i] = `rgb(${rand255()}, ${rand255()}, ${rand255()})`;
+				// secondary colors
+				for (let j = 0; j < 3; j++) {
+					colorNums[i][3 + j] = (colorNums[i][j] + colorNums[i][(j + 1) % 3]) / 2;
 				}
 			}
+			colorList = new Array(6);
+			// repeat for each color
+			for (let i = 0; i < 6; i++) {
+				colorList[i] = `rgb(${colorNums[0][i]}, ${colorNums[1][i]}, ${colorNums[2][i]})`;
+			}
+			break;
+		}
+		case Modes.rainbow: {
+			let increment = 360 / numColors;
+			let h = rand(0, 360);
+			let temp = rand(0, 8);
+			let s = 100 - temp * temp;
+			let l = rand(50, 80);
+			for (let i = 0; i < colorList.length; i++) {
+				colorList[i] = `hsl(${h}, ${s}%, ${l}%)`;
+				h = (h + increment) % 360;
+			}
+			break;
+		}
+		case Modes.grayscale: {
+			let increment = 255 / numColors;
+			let val = rand(0, 255);
+			for (let i = 0; i < colorList.length; i++) {
+				colorList[i] = `rgb(${val}, ${val}, ${val})`;
+				val = (val + increment) % 255;
+			}
+			break;
+		}
+		default: {
+			// random
+			for (let i = 0; i < colorList.length; i++) {
+				colorList[i] = `rgb(${rand255()}, ${rand255()}, ${rand255()})`;
+			}
+		}
 	}
 	bgColor = colorList[0];
 	// bgColor = 'black';
@@ -147,7 +143,7 @@ function makeInitial(prefs) {
 	if (prefs.startAtZero) {
 		return 0;
 	} else if (prefs.startAtRandom) {
-		let factor = (Math.random() + Math.random())
+		let factor = Math.random() + Math.random();
 		return prefs.typical * factor * factor;
 	} else {
 		return prefs.typical;
@@ -157,14 +153,14 @@ function makeInitial(prefs) {
 function varyRelative(val, prefs) {
 	// keep attribute the same if it's stable
 	if (prefs.changeRate === 0) return val;
-	
+
 	// modify val
-	val += rand(-prefs.changeRate, prefs.changeRate)
+	val += rand(-prefs.changeRate, prefs.changeRate);
 	// pull it toward typical
 	val += (prefs.typical - val) * prefs.moderation;
 	// ensure positive
 	if (val < 0) val *= -1;
-	
+
 	return val;
 }
 
@@ -177,7 +173,6 @@ function restrictRange(val, prefs) {
 		return val;
 	}
 }
-
 
 // the little guys who fly around (particles)
 function Guy() {
@@ -208,7 +203,7 @@ function Guy() {
 			ctx.arc(this.x, this.y, this.size / 2, 0, 2 * Math.PI, true);
 			ctx.fill();
 		}
-		
+
 		// modify attributes
 		this.size = varyRelative(this.size, sizePrefs);
 		this.speed = varyRelative(this.speed, speedPrefs);
@@ -225,13 +220,13 @@ function Guy() {
 		// move
 		this.x += this.speed * Math.cos(this.dir);
 		this.y += this.speed * Math.sin(this.dir);
-		
+
 		// again, if a line, finish stroke
 		if (wormShape === Shapes.line) {
 			ctx.lineTo(this.x, this.y);
 			ctx.stroke();
 		}
-		
+
 		//  wrap around when out of bounds
 		if (this.x < -this.size) {
 			this.x = WIDTH + this.size;
@@ -243,7 +238,7 @@ function Guy() {
 		} else if (this.y >= HEIGHT + this.size) {
 			this.y = -this.size;
 		}
-	}
+	};
 }
 
 let guyList = new Array(numGuys);
@@ -253,17 +248,17 @@ function init() {
 	document.body.appendChild(canvas);
 	canvas.width = WIDTH * window.devicePixelRatio;
 	canvas.height = HEIGHT * window.devicePixelRatio;
-	canvas.style.width = WIDTH + 'px';
-	canvas.style.height = HEIGHT + 'px';
+	canvas.style.width = WIDTH + "px";
+	canvas.style.height = HEIGHT + "px";
 	canvas.style.marginLeft = `-${WIDTH / 2}px`;
 	canvas.style.marginTop = `-${HEIGHT / 2}px`;
 	canvas.onkeydown = restart;
-	
-	ctx = canvas.getContext('2d', {alpha: false});
+
+	ctx = canvas.getContext("2d", { alpha: false });
 	ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
 
-	window.addEventListener('keydown', this.keyHandle, false);
-	window.addEventListener('mousedown', this.restart, false);
+	window.addEventListener("keydown", this.keyHandle, false);
+	window.addEventListener("mousedown", this.restart, false);
 	restart();
 	window.requestAnimationFrame(step);
 }
@@ -276,7 +271,7 @@ function restart() {
 	} else {
 		wormShape = Shapes.connectedCircles;
 	}
-	
+
 	linetype = choose(["butt", "round", "square", "line", "cap"]);
 	colorMode = Math.floor(Math.random() * 4);
 
@@ -301,7 +296,7 @@ function restart() {
 		ctx.globalCompositeOperation = choose(["soft-light", "hard-light", "xor", "difference", "multiply"]);
 		fade = 0;
 	}
-	
+
 	if (wormShape === Shapes.line) {
 		ctx.lineCap = lineType;
 	}
@@ -317,10 +312,10 @@ function keyHandle(event) {
 	// ignore repeated events from holding down key
 	if (!event.repeat) {
 		// press space or enter -> restart
-		if (['Space', 'Enter'].includes(event.code)) {
+		if (["Space", "Enter"].includes(event.code)) {
 			restart();
-		// press B -> toggle background clearing and restart
-		} else if (event.code == 'KeyB') {
+			// press B -> toggle background clearing and restart
+		} else if (event.code == "KeyB") {
 			clearBg = !clearBg;
 			restart();
 		}
@@ -333,10 +328,10 @@ function choose(list) {
 }
 
 function step(time) {
-	fps = Math.floor(frameCount * 1000 / time) + ' fps';
+	fps = Math.floor((frameCount * 1000) / time) + " fps";
 	console.log(fps);
 	frameCount++;
-	
+
 	// draw transparent bg-color rectangle across whole canvas
 	if (fade > 0) {
 		ctx.globalAlpha = fade;
@@ -345,6 +340,6 @@ function step(time) {
 		ctx.globalAlpha = 1;
 	}
 
-	guyList.forEach(g => g.draw());
+	guyList.forEach((g) => g.draw());
 	window.requestAnimationFrame(step);
 }
