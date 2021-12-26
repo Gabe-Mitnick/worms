@@ -293,13 +293,13 @@ function restart() {
 		ctx.fillStyle = bgColor;
 		ctx.fillRect(0, 0, WIDTH, HEIGHT);
 	}
-	// 70% chance of just normal source-over composition
-	if (Math.random() > 0.8) {
+	// 86% chance of just normal source-over composition
+	if (Math.random() < 0.86) {
+		// randomize fade but prefer no fade
+		fade = Math.max(0, Math.random() * 0.08 - 0.03);
+	} else {
 		ctx.globalCompositeOperation = choose(["soft-light", "hard-light", "xor", "difference", "multiply"]);
 		fade = 0;
-	} else {
-		// if normal source-over composition, randomize fade but prefer no fade
-		fade = Math.max(0, Math.random() * 0.08 - 0.03);
 	}
 	
 	if (wormShape === Shapes.line) {
