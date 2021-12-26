@@ -51,10 +51,10 @@ var lineType = 'butt';
 var numColors = 6;
 // fake enum for color modes
 var Modes = Object.freeze({
-	random: 0,
-	hexagon: 1,
+	grayscale: 0,
+	random: 1,
 	rainbow: 2,
-	grayscale: 3
+	hexagon: 3,
 });
 var colorMode = Modes.hexagon;
 // should no worms be the same color as the background?
@@ -110,8 +110,11 @@ function genColors() {
 			{
 				let increment = 360 / numColors;
 				let h = rand(0, 360);
+				let temp = rand(0, 8);
+				let s = 100 - (temp * temp);
+				let l = rand(50, 80);
 				for (let i = 0; i < colorList.length; i++) {
-					colorList[i] = `hsl(${h}, 100%, 80%)`;
+					colorList[i] = `hsl(${h}, ${s}%, ${l}%)`;
 					h = (h + increment) % 360;
 				}
 				break;
@@ -185,8 +188,8 @@ function Guy() {
 	this.size = makeInitial(sizePrefs);
 	this.speed = makeInitial(speedPrefs);
 	this.dir = rand(dirPrefs.min, dirPrefs.max);
-	// pick random color from the list
-	this.color = colorList[Math.floor(Math.random() * colorList.length)];
+	// pick random color from the list, favoring higher numbers
+	this.color = colorList[Math.floor(4 * Math.pow(Math.random(), 0.65))];
 	// this.color = colorList[0];
 
 	this.draw = function () {
