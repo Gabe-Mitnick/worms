@@ -1,5 +1,5 @@
 /* TODO
-make more things be varants
+make more things be variants
 set up this option for background color
 	if colorHexagon, choose primary, secondary, or average
 	else, choose a unique color or one of the normal colors
@@ -11,31 +11,37 @@ shape options: circle, triangle, square
 motion only on square or triangular or hexagonal grid
 */
 
+// using var instead of const so I can change it during runtime in devtools
 var WIDTH = window.screen.width;
 var HEIGHT = window.screen.height;
 var numGuys = 200;
 
+// fps metering
+var FRAME_RATE_FACTOR = 1 / 120,
+	SAMPLING_PERIOD = 10,
+	startTime = 0,
+	frameCount = SAMPLING_PERIOD,
+	slowness = 1;
+
 var sizePrefs = {
-	// typical: 12,
-	startAtRandom: true,
-	// changeRate: 3,
+	typical: 12,
+	changeRate: 3,
 	moderation: 0.06,
-	startAtZero: true,
+	startAtRandom: false,
 };
 var speedPrefs = {
-	// typical: 4,
-	startAtRandom: true,
-	// changeRate: .5,
+	typical: 4,
+	changeRate: 0.5,
 	moderation: 0.1,
-	startAtZero: true,
+	startAtRandom: false,
 };
 var dirPrefs = {
 	min: 0,
 	max: 2 * Math.PI,
-	startAtRandom: true,
 	// radians / frame
-	// changeRate: .3,
+	changeRate: 0.3,
 	restrict: false,
+	startAtRandom: true,
 };
 
 var Shapes = Object.freeze({
@@ -44,9 +50,9 @@ var Shapes = Object.freeze({
 	square: 2,
 	line: 3,
 });
-var wormShape = Shapes.connectedCircles;
+var wormShape;
 // butt, round, or square line cap
-var lineType = "butt";
+var lineType;
 
 var numColors = 6;
 // fake enum for color modes
@@ -66,7 +72,6 @@ var clearBg = true;
 
 let colorList, bgColor;
 let canvas, ctx;
-let frameCount = 0;
 
 // utility function for a random float on range [min, max)
 function rand(min, max) {
@@ -140,13 +145,11 @@ function genColors() {
 }
 
 function makeInitial(prefs) {
-	if (prefs.startAtZero) {
-		return 0;
-	} else if (prefs.startAtRandom) {
+	if (prefs.startAtRandom) {
 		let factor = Math.random() + Math.random();
 		return prefs.typical * factor * factor;
 	} else {
-		return prefs.typical;
+		return 0;
 	}
 }
 
@@ -207,7 +210,7 @@ function Guy() {
 		// modify attributes
 		this.size = varyRelative(this.size, sizePrefs);
 		this.speed = varyRelative(this.speed, speedPrefs);
-		this.dir += rand(-dirPrefs.changeRate, dirPrefs.changeRate);
+		this.dir += rand(-dirPrefs.changeRate, dirPrefs.changeRate) * slowness;
 		// optionally restrict the direction to a range
 		if (dirPrefs.restrict) {
 			this.dir = restrictRange(this.dir, dirPrefs);
@@ -218,8 +221,8 @@ function Guy() {
 			this.speed = Math.min(this.speed, this.size);
 		}
 		// move
-		this.x += this.speed * Math.cos(this.dir);
-		this.y += this.speed * Math.sin(this.dir);
+		this.x += this.speed * Math.cos(this.dir) * slowness;
+		this.y += this.speed * Math.sin(this.dir) * slowness;
 
 		// again, if a line, finish stroke
 		if (wormShape === Shapes.line) {
@@ -328,8 +331,14 @@ function choose(list) {
 }
 
 function step(time) {
-	fps = Math.floor((frameCount * 1000) / time) + " fps";
-	console.log(fps);
+	if (frameCount == SAMPLING_PERIOD) {
+		if (startTime != 0) {
+			slowness = (time - startTime) * FRAME_RATE_FACTOR;
+			console.log(`slowness: ${slowness}`);
+		}
+		frameCount = 0;
+		startTime = time;
+	}
 	frameCount++;
 
 	// draw transparent bg-color rectangle across whole canvas
