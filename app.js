@@ -1,23 +1,16 @@
-/* TODO
-make more things be variants
-set up this option for background color
-	if colorHexagon, choose primary, secondary, or average
-	else, choose a unique color or one of the normal colors
-make options be on screen
-square and hex grid versions
+/* TODO:
+show variants as on screen
 make separate css stylesheet
-new colormodes: rainbow, grayscale, opacity
-shape options: circle, triangle, square
 motion only on square or triangular or hexagonal grid
 */
 
-// using var instead of const so I can change it during runtime in devtools
+// using var instead of const so I can play with these constants during runtime in devtools
 var WIDTH = window.screen.width;
 var HEIGHT = window.screen.height;
 var numGuys = 200;
 
 // fps metering
-var FRAME_RATE_FACTOR = 1 / 120,
+var FRAME_RATE_FACTOR = 1 / 180,
 	SAMPLING_PERIOD = 10,
 	startTime = 0,
 	frameCount = SAMPLING_PERIOD,
@@ -251,10 +244,12 @@ function init() {
 	document.body.appendChild(canvas);
 	canvas.width = WIDTH * window.devicePixelRatio;
 	canvas.height = HEIGHT * window.devicePixelRatio;
-	canvas.style.width = WIDTH + "px";
-	canvas.style.height = HEIGHT + "px";
-	canvas.style.marginLeft = `-${WIDTH / 2}px`;
-	canvas.style.marginTop = `-${HEIGHT / 2}px`;
+	let cssWidthExpr = `max(${WIDTH}px, 100vw)`;
+	let cssHeightExpr = `max(${HEIGHT}px, 100vw * ${HEIGHT / WIDTH})`;
+	canvas.style.width = `calc(${cssWidthExpr})`;
+	canvas.style.height = `calc(${cssHeightExpr})`;
+	canvas.style.marginLeft = `calc(${cssWidthExpr} / -2)`;
+	canvas.style.marginTop = `calc(${cssHeightExpr} / -2)`;
 	canvas.onkeydown = restart;
 
 	ctx = canvas.getContext("2d", { alpha: false });
@@ -334,7 +329,6 @@ function step(time) {
 	if (frameCount == SAMPLING_PERIOD) {
 		if (startTime != 0) {
 			slowness = (time - startTime) * FRAME_RATE_FACTOR;
-			console.log(`slowness: ${slowness}`);
 		}
 		frameCount = 0;
 		startTime = time;
