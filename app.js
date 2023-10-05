@@ -265,19 +265,19 @@ function restart() {
 	// randomize some settings
 	// 40% chance of just round worm shape
 	if (Math.random() > 0.6) {
-		wormShape = Math.floor(Math.random() * 4);
+		wormShape = Math.floor(rand(0, 4));
 	} else {
 		wormShape = Shapes.connectedCircles;
 	}
 
 	linetype = choose(["butt", "round", "square", "line", "cap"]);
-	colorMode = Math.floor(Math.random() * 4);
+	colorMode = Math.floor(rand(0, 4));
 
-	sizePrefs.typical = 50 * Math.random();
-	sizePrefs.changeRate = Math.random() * 6;
-	speedPrefs.typical = Math.random() * 6 + 2;
-	speedPrefs.changeRate = Math.random();
-	dirPrefs.changeRate = Math.random();
+	sizePrefs.typical = rand(0, 50);
+	sizePrefs.changeRate = rand(0, 6);
+	speedPrefs.typical = rand(2, 8);
+	speedPrefs.changeRate = rand(0, 1);
+	dirPrefs.changeRate = rand(0, 1);
 
 	genColors();
 
@@ -289,7 +289,7 @@ function restart() {
 	// 86% chance of just normal source-over composition
 	if (Math.random() < 0.86) {
 		// randomize fade but prefer no fade
-		fade = Math.max(0, Math.random() * 0.08 - 0.03);
+		fade = Math.max(0, rand(-0.03, 0.05));
 	} else {
 		ctx.globalCompositeOperation = choose(["soft-light", "hard-light", "xor", "difference", "multiply"]);
 		fade = 0;
